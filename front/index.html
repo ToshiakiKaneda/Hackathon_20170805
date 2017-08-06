@@ -1,0 +1,288 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			html, body {
+				margin: 0;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				-khtml-user-select: none;
+				-webkit-user-select: none;
+				-webkit-touch-callout: none;
+				background-color: rgb(3, 73, 132);
+			}
+
+			.hide {
+				display: none;
+			}
+
+			#button_title {
+				width: 130px;
+				height: 175px;
+				position: absolute;
+				top: 20px;
+				left: 25px;
+				cursor: pointer;
+				z-index: 999;
+			}
+
+			#button_up {
+				width: 153px;
+				height: 153px;
+				position: absolute;
+				top: 224px;
+				left: 15px;
+				cursor: pointer;
+				z-index: 10;
+			}
+
+			.disabled {
+				background-color: gray;
+				opacity: 0.5;
+			}
+
+			#button_down {
+				width: 153px;
+				height: 153px;
+				position: absolute;
+				top: 379px;
+				left: 15px;
+				cursor: pointer;
+				z-index: 10;
+			}
+
+			#button_kyushu {
+				width: 153px;
+				height: 90px;
+				position: absolute;
+				top: 515px;
+				left: 225px;
+				cursor: pointer;
+				z-index: 11;
+			}
+
+			#button_attension_dummy {
+				width: 120px;
+				height: 120px;
+				position: absolute;
+				z-index: 11;
+				top: 571px;
+				left: 35px;
+			}
+
+			.fadeout {
+				opacity: 0;
+			}
+
+			img {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			.bottom {
+				z-index: 3;
+			}
+
+			.middle {
+				z-index: 6;
+			}
+
+			.top {
+				z-index: 9;
+			}
+
+			#map-background {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 720px;
+				background: linear-gradient(to bottom, rgb(6, 123, 183), rgb(3, 73, 132));
+				/*
+				background-image: url("./map_background.png");
+				background-repeat: repeat-x;
+				*/
+			}
+
+			#popup_attension {
+				position: absolute;
+				top: 130px;
+				left: 150;
+				z-index: 10000;
+			}
+			#popup_attension_background {
+				width: 100%;
+				height: 100%;
+				background-color: rgb(3, 73, 132);
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 9999;
+				opacity: 0.8
+			}
+
+			#button_close_popup_attension {
+				position: absolute;
+				cursor: pointer;
+				width: 36px;
+				height: 36px;
+				top:151px;
+				left: 887px;
+				z-index: 10001
+			}
+		</style>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script>
+			var isAnimate = false;
+			var isZoom = false;
+			var isDown = true;
+
+			$(function() {
+				$("#button_kyushu").click(function() {
+					if (isAnimate) return;
+					// ズームインする
+
+					isAnimate = true;
+
+					$("#button_kyushu").addClass("hide");
+
+					setPosition("map_all02", "middle");
+
+					$("#map_zoomin").attr("src", "./map_zoom.gif");
+					setPosition("map_zoomin", "top");
+
+					setTimeout("zoomInKyushu()", 1300);
+				});
+
+				$("#button_title").click(function() {
+					if (isAnimate || !isZoom) return;
+					// ズームアウトする
+
+					isAnimate = true;
+
+					$("#button_title").addClass("hide");
+					$("#button_attension_dummy").addClass("hide");
+
+					setPosition("map_kyushu", "middle");
+
+					$("#map_zoomout").attr("src", "./map_zoom_out.gif");
+					setPosition("map_zoomout", "top");
+
+					setTimeout("zoomOutKyushu()", 1300);
+				});
+
+				$("#button_up").click(function() {
+					if (isAnimate || !isDown) return;
+					if ($(this).hasClass("disabled")) return;
+					isDown = false;
+					$("#button_kyushu").addClass("hide");
+					$("#map_all01").fadeIn(300);
+					$("#map_all02").fadeOut(300);
+				});
+
+				$("#button_down").click(function() {
+					if (isAnimate || isDown) return;
+					isDown = true;
+					$("#map_all02").fadeIn(300);
+					$("#map_all01").fadeOut(300);
+					$("#button_kyushu").removeClass("hide");
+				});
+
+				$("#button_attension").click(function() {
+					if (isAnimate) return;
+					isAnimate = true;
+					isDispAttenstion = true;
+					$("#popup_attension_background").fadeIn(300);
+					$("#popup_attension").fadeIn(500, function() {
+						$("#button_close_popup_attension").removeClass("hide");
+						isAnimate = false;
+					});
+				});
+
+				$("#button_close_popup_attension").click(function() {
+					if (isAnimate || !isDispAttenstion) return;
+					isAnimate = true;
+					$("#button_close_popup_attension").addClass("hide");
+					$("#popup_attension").fadeOut(300);
+					$("#popup_attension_background").fadeOut(500, function() {
+						isDispAttenstion = false;
+						isAnimate = false;
+					});
+				});
+			});
+
+			function zoomInKyushu() {
+				$("#map_kyushu").hide();
+				setPosition("map_all02", "bottom");
+				setPosition("map_zoomin", "middle");
+				setPosition("map_kyushu", "top");
+				$("#map_kyushu").fadeIn(300, function() {
+					$("#button_attension_dummy").removeClass("hide");
+					$("#map_zoomin").addClass("hide");
+					$("#map_zoomout").removeClass("hide");
+					isAnimate = false;
+					isZoom = true;
+					$("#button_title").removeClass("hide");
+					$("#button_up").addClass("disabled");
+				});
+			}
+
+			function zoomOutKyushu() {
+				$("#map_all02").hide();
+				setPosition("map_kyushu", "bottom");
+				setPosition("map_zoomout", "middle");
+				setPosition("map_all02", "top");
+				$("#map_all02").fadeIn(300, function() {
+					$("#map_zoomin").removeClass("hide");
+					$("#map_zoomout").addClass("hide");
+					$("#button_kyushu").removeClass("hide");
+					$("#button_up").removeClass("disabled");
+					isAnimate = false;
+					isZoom = false;
+				});
+			}
+
+			function setPosition(target, position) {
+				if (target === "map_zoomin" || target === "map_zoomout") {
+					$("#map_zoomin").removeClass("top").removeClass("middle").removeClass("bottom").addClass(position);
+					$("#map_zoomout").removeClass("top").removeClass("middle").removeClass("bottom").addClass(position);
+				} else if (target === "map_all01" || target === "map_all02") {
+					$("#map_all01").removeClass("top").removeClass("middle").removeClass("bottom").addClass(position);
+					$("#map_all02").removeClass("top").removeClass("middle").removeClass("bottom").addClass(position);
+				} else {
+					$("#" + target).removeClass("top").removeClass("middle").removeClass("bottom").addClass(position);
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="map-background" draggable="false"></div>
+		<img src="./map_japan02.png" id="map_all02" class="top" draggable="false">
+		<img src="./map_japan01.png" id="map_all01" class="top hide" draggable="false">
+		<img src="./map_zoom.gif" id="map_zoomin" class="middle" draggable="false">
+		<img src="./map_zoom_out.gif" id="map_zoomout" class="middle hide" draggable="false">
+		<img src="./map_zoom03.png" id="map_kyushu" class="bottom" draggable="false">
+
+		<div id="button_title" draggable="false" class="hide"><!-- タイトル --></div>
+		<div id="button_up" draggable="false"><!-- 出荷量上昇 --></div>
+		<div id="button_down" draggable="false"><!-- 出荷量上昇 --></div>
+		<div id="button_kyushu" draggable="false"><!-- 九州 --></div>
+		<div id="button_close_popup_attension" draggable="false" class="hide"><!-- 連絡事項-閉じる --></div>
+		<div id="button_popup_attension_link" draggable="false" class="hide"><!-- 連絡事項-リンク --></div>
+		<!-- 連絡事項 ボタン ここから -->
+		<img id="button_attension_dummy" src="sckelton.png" style="" usemap="#menumap" draggable="false" class="hide">
+		<map name="menumap" draggable="false">
+			<area href="javascript:void(0);" shape="poly" alt="TOP" coords="60,0,120,120,0,120" id="button_attension" draggable="false">
+		</map>
+		<!-- 連絡事項 ボタン ここまで -->
+
+		<!-- 連絡事項 ここから -->
+		<div id="popup_attension_background" draggable="false" class="hide"></div>
+		<img src="./popup_attension.png" id="popup_attension" draggable="false" class="hide">
+		<!-- 連絡事項 ここまで -->
+
+
+
+	</body>
+</html>
